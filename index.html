@@ -59,6 +59,9 @@
         font-size: 1.05rem;
       }
 
+      .intro p { margin: 0; }
+      .intro p + p { margin-top: 0.35rem; }
+
       .section-title {
         margin: 0 0 16px;
         font-size: 0.88rem;
@@ -118,15 +121,18 @@
   <body>
     <main>
       <p class="eyebrow">Engineering portfolio</p>
-      <h1>Systems, search, and working prototypes.</h1>
-      <p class="intro">以可操作的原型呈現問題拆解、系統設計與工程決策。每個案例皆保留獨立路徑，方便持續新增作品。</p>
+      <h1>Engineering work, made inspectable.</h1>
+      <div class="intro">
+        <p>以下收錄我主導或參與的精選專案，聚焦可操作原型與關鍵程式實作。</p>
+        <p>每個案例呈現從問題定義、系統設計，到工程取捨與驗證的思考過程。</p>
+      </div>
 
       <h2 class="section-title">Prototypes</h2>
       <div class="grid">
         <a class="card" href="./aisearch/dist/">
           <span class="number">01</span>
           <h2>AI 商品搜尋</h2>
-          <p>查詢理解、多階段召回、可解釋排序與商業規則的互動展示。</p>
+          <p>查詢理解、多階段召回、符合商業規則的排序之電商平台搜尋功能。</p>
           <span class="open">開啟 prototype →</span>
         </a>
       </div>
