@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="商品展示背景圖自動配對服務：從圖片色彩分析到前台展示的架構案例。" />
+    <title>商品展示背景自動配對 | Engineering Portfolio</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #071125;
+        --panel: #101e3d;
+        --panel-deep: #0c1933;
+        --line: #2c426b;
+        --text: #eaf1ff;
+        --muted: #a6b6d0;
+        --teal: #63e6c7;
+        --blue: #9dc4ff;
+        --amber: #ffd19a;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background: radial-gradient(circle at 8% 0%, #1b3970 0, transparent 32rem), radial-gradient(circle at 93% 12%, #16414d 0, transparent 28rem), var(--bg);
+        font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Noto Sans TC", sans-serif;
+      }
+      a { color: inherit; }
+      button { font: inherit; }
+      .shell { width: min(1160px, calc(100% - 36px)); margin: auto; padding: 26px 0 76px; }
+      .top { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+      .back { color: var(--muted); text-decoration: none; font-size: .88rem; }
+      .back:hover, .back:focus-visible { color: var(--teal); }
+      .badge { border: 1px solid #378b85; color: var(--teal); padding: 4px 11px; border-radius: 99px; font-size: .73rem; font-weight: 800; letter-spacing: .1em; white-space: nowrap; }
+      .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 44px; align-items: center; padding: 78px 0 72px; }
+      .eyebrow, .kicker { color: var(--teal); font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+      .eyebrow { margin: 0 0 14px; }
+      h1 { margin: 0; max-width: 680px; font-size: clamp(2.55rem, 5.4vw, 4.8rem); line-height: 1.11; letter-spacing: -.055em; }
+      .lede { max-width: 610px; color: var(--muted); font-size: 1.07rem; margin: 24px 0 0; }
+      .project-role { max-width: 610px; margin: 17px 0 0; padding-left: 13px; border-left: 2px solid var(--teal); color: #c2d2e9; font-size: .87rem; }
+      .project-role strong { color: var(--teal); margin-right: 7px; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 28px; }
+      .button { display: inline-flex; align-items: center; justify-content: center; min-height: 43px; padding: 8px 17px; border: 1px solid #42618d; border-radius: 10px; text-decoration: none; font-size: .86rem; font-weight: 700; }
+      .button.primary { background: var(--teal); border-color: var(--teal); color: #092522; }
+      .button:hover, .button:focus-visible { border-color: var(--teal); outline: none; transform: translateY(-2px); }
+      .hero-visual { position: relative; min-height: 390px; display: grid; align-items: center; }
+      .hero-visual::before { content: ""; position: absolute; inset: 15px 11px -15px -11px; border: 1px solid #33567f; border-radius: 24px; transform: rotate(-5deg); background: #13274b; }
+      .visual-card { position: relative; display: grid; place-items: center; overflow: hidden; min-height: 365px; padding: 24px; border-radius: 22px; border: 1px solid #42628a; background: url("./assets/demo-blue.png") center / cover; box-shadow: 0 28px 60px #030b1b9c; }
+      .product-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: min(100%, 540px); }
+      .display-product { aspect-ratio: 1; overflow: hidden; border-radius: 12px; background: #fff; box-shadow: 0 15px 30px #0e2b4750; }
+      .display-product img { display: block; width: 100%; height: 100%; object-fit: contain; }
+      .facts { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; background: #0d1c39c9; border: 1px solid var(--line); border-radius: 16px; }
+      .fact { min-height: 107px; padding: 19px 21px; border-right: 1px solid var(--line); }
+      .fact:last-child { border-right: 0; }
+      .fact b { display: block; color: var(--teal); font-size: 1.2rem; letter-spacing: -.025em; }
+      .fact span { color: var(--muted); font-size: .78rem; }
+      section { margin-top: 86px; }
+      .kicker { display: block; margin-bottom: 11px; }
+      h2 { margin: 0 0 12px; font-size: clamp(1.7rem, 3.2vw, 2.35rem); letter-spacing: -.035em; line-height: 1.25; }
+      .intro { max-width: 760px; margin: 0 0 25px; color: var(--muted); }
+      .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .stage { min-height: 190px; padding: 20px 17px; border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(160deg, #193461, #0b1b39); }
+      .stage .num { display: inline-grid; width: 28px; height: 28px; place-items: center; color: #0a2925; background: var(--teal); border-radius: 8px; font-size: .75rem; font-weight: 900; }
+      .stage h3 { margin: 28px 0 8px; font-size: .99rem; line-height: 1.35; }
+      .stage p { margin: 0; color: var(--muted); font-size: .82rem; }
+      .flow-note { margin: 15px 0 0; color: #90a8c8; font-size: .78rem; }
+      .preview-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr); gap: 18px; }
+      .preview-panel, .gallery-panel { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #0d1d3b; }
+      .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 15px; }
+      .panel-head strong { font-size: .9rem; }
+      .panel-head span { color: var(--muted); font-size: .72rem; }
+      .showcase { min-height: 340px; display: grid; place-items: center; padding: 22px; border-radius: 13px; background: url("./assets/demo-blue.png") center / cover; transition: background-image .2s ease; }
+      .selection { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 13px; color: var(--muted); font-size: .77rem; }
+      .selection code { color: var(--teal); font-size: .82rem; }
+      .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .option { width: 100%; padding: 5px; color: var(--text); background: #142847; border: 1px solid #3a5680; border-radius: 11px; text-align: left; cursor: pointer; }
+      .option:hover, .option:focus-visible, .option[aria-pressed="true"] { border-color: var(--teal); outline: none; }
+      .option[aria-pressed="true"] { box-shadow: 0 0 0 2px #63e6c738; }
+      .option img { display: block; width: 100%; aspect-ratio: 2.1; object-fit: cover; border-radius: 6px; }
+      .option span { display: block; padding: 5px 4px 2px; color: var(--muted); font-size: .68rem; }
+      .gallery-note { margin: 14px 0 0; color: #8fa6c4; font-size: .73rem; }
+      .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+      .rule { padding: 22px; background: #101f3e; border: 1px solid var(--line); border-radius: 16px; }
+      .rule .label { color: var(--blue); font-size: .73rem; font-weight: 900; letter-spacing: .1em; }
+      .rule h3 { margin: 17px 0 8px; font-size: 1.05rem; }
+      .rule p { margin: 0; color: var(--muted); font-size: .83rem; }
+      .rule code, .contract code, .source-note code { color: var(--teal); overflow-wrap: anywhere; }
+      .contract { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .contract-card { padding: 23px; background: #0d1d3b; border: 1px solid var(--line); border-radius: 17px; }
+      .contract-card h3 { margin: 0 0 15px; font-size: 1.02rem; }
+      .contract-card dl { margin: 0; }
+      .contract-card dl div { display: grid; grid-template-columns: 112px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid #284063; font-size: .82rem; }
+      .contract-card dt { color: var(--blue); font-weight: 800; }
+      .contract-card dd { margin: 0; color: var(--muted); }
+      .contract-card p { color: var(--muted); font-size: .82rem; }
+      .contract-card p:last-child { margin-bottom: 0; }
+      .source-note { margin-top: 18px; padding: 18px 21px; border-left: 3px solid var(--teal); border-radius: 0 12px 12px 0; background: #102441; color: var(--muted); font-size: .82rem; }
+      .source-note strong { color: var(--text); }
+      footer { margin-top: 78px; padding-top: 20px; border-top: 1px solid var(--line); color: #8599b9; font-size: .75rem; }
+      @media (max-width: 900px) {
+        .hero, .preview-layout { grid-template-columns: 1fr; }
+        .hero { padding-top: 56px; }
+        .hero-visual { max-width: 620px; width: 100%; }
+        .flow { grid-template-columns: repeat(3, 1fr); }
+        .facts { grid-template-columns: repeat(2, 1fr); }
+        .fact:nth-child(2) { border-right: 0; }
+        .fact:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+        .gallery { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (max-width: 640px) {
+        .shell { width: min(100% - 26px, 1160px); }
+        .top { align-items: flex-start; }
+        .badge { font-size: .63rem; }
+        .hero { padding: 50px 0 45px; gap: 30px; }
+        .hero-visual { min-height: 310px; }
+        .visual-card { min-height: 300px; }
+        .product-pair { gap: 9px; }
+        .showcase { min-height: 260px; padding: 16px; }
+        .flow, .rules, .contract { grid-template-columns: 1fr; }
+        .stage { min-height: unset; }
+        .stage h3 { margin-top: 14px; }
+        .gallery { grid-template-columns: repeat(2, 1fr); }
+        section { margin-top: 68px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="top"><a class="back" href="../">← 返回作品集</a><span class="badge">IMAGE MATCHING CASE STUDY</span></header>
+
+      <div class="hero">
+        <div>
+          <p class="eyebrow">E-commerce visual automation</p>
+          <h1>讓商品展示背景，跟著商品色彩自動配對。</h1>
+          <p class="lede">前台網頁的指定商品展示區塊，需要一張能襯托商品的背景圖。這個 FastAPI service 分析商品圖片的代表色，從預先準備的背景圖庫選出合適圖紙，供前台組裝展示。</p>
+          <p class="project-role"><strong>專案角色</strong>我負責實作自動配圖服務，將圖片分析與背景挑選整合成前台可使用的功能。</p>
+          <div class="hero-actions"><a class="button primary" href="#architecture">看選圖流程 ↓</a><a class="button" href="#preview">看前台預覽 ↗</a></div>
+        </div>
+        <div class="hero-visual" aria-label="左右兩張商品主圖搭配同一張背景紙的展示示意">
+          <div class="visual-card">
+            <div class="product-pair"><div class="display-product"><img src="./assets/demo-tumblers.png" alt="示意商品主圖：兩個無品牌保溫杯" /></div><div class="display-product"><img src="./assets/demo-kettle.png" alt="示意商品主圖：無品牌電熱水壺" /></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="facts" aria-label="服務摘要">
+        <div class="fact"><b>商品圖片</b><span>分析展示素材</span></div>
+        <div class="fact"><b>背景圖庫</b><span>預先整理候選素材</span></div>
+        <div class="fact"><b>色彩分析</b><span>自動挑選背景圖</span></div>
+        <div class="fact"><b>前台展示</b><span>配合頁面組裝</span></div>
+      </div>
+
+      <section id="architecture" aria-labelledby="architecture-title">
+        <span class="kicker">01 / Architecture</span>
+        <h2 id="architecture-title">從商品圖到前台背景的三個步驟</h2>
+        <p class="intro">服務把圖片輸入、背景挑選與前台使用串成一條流程，讓指定展示區塊能取得合適的背景圖紙。</p>
+        <div class="flow">
+          <article class="stage"><span class="num">01</span><h3>取得商品圖</h3><p>取得商品展示所需的圖片素材。</p></article>
+          <article class="stage"><span class="num">02</span><h3>自動挑選背景</h3><p>服務依商品圖片的色彩特徵，從預先整理的背景圖庫挑選圖紙。</p></article>
+          <article class="stage"><span class="num">03</span><h3>交給前台展示</h3><p>將配圖結果提供給指定商品展示區塊使用。</p></article>
+        </div>
+      </section>
+
+      <section id="preview" aria-labelledby="preview-title">
+        <span class="kicker">02 / Frontend composition</span>
+        <h2 id="preview-title">看背景圖紙如何進入商品展示區塊</h2>
+        <p class="intro">左右兩個商品主圖放在同一張背景紙上，呈現前台指定區塊的構圖。圖片皆為新生成的示意素材；點選圖紙可比較效果，這裡不會呼叫服務重新選圖。</p>
+        <div class="preview-layout">
+          <div class="preview-panel">
+            <div class="panel-head"><strong>指定商品展示區塊</strong><span>前台構圖示意</span></div>
+            <div class="showcase" id="showcase">
+              <div class="product-pair"><div class="display-product"><img src="./assets/demo-tumblers.png" alt="示意商品主圖：兩個無品牌保溫杯" /></div><div class="display-product"><img src="./assets/demo-kettle.png" alt="示意商品主圖：無品牌電熱水壺" /></div></div>
+            </div>
+            <div class="selection"><span>目前預覽圖紙</span><code id="selected-file">demo-blue.png</code></div>
+          </div>
+          <div class="gallery-panel">
+            <div class="panel-head"><strong>示意背景圖</strong><span>選擇預覽</span></div>
+            <div class="gallery" role="group" aria-label="選擇背景圖紙">
+              <button type="button" class="option" data-file="demo-navy.png" aria-pressed="false"><img src="./assets/demo-navy.png" alt="生成的深藍金點抽象背景圖" loading="lazy" /><span>深藍</span></button>
+              <button type="button" class="option" data-file="demo-rose.png" aria-pressed="false"><img src="./assets/demo-rose.png" alt="生成的粉色絲帶抽象背景圖" loading="lazy" /><span>粉色</span></button>
+              <button type="button" class="option" data-file="demo-lime.png" aria-pressed="false"><img src="./assets/demo-lime.png" alt="生成的黃綠色植物抽象背景圖" loading="lazy" /><span>黃綠</span></button>
+              <button type="button" class="option" data-file="demo-blue.png" aria-pressed="true"><img src="./assets/demo-blue.png" alt="生成的藍色紙藝花卉背景圖" loading="lazy" /><span>花卉藍</span></button>
+              <button type="button" class="option" data-file="demo-sand.png" aria-pressed="false"><img src="./assets/demo-sand.png" alt="生成的暖金色波紋背景圖" loading="lazy" /><span>暖金</span></button>
+              <button type="button" class="option" data-file="demo-silver.png" aria-pressed="false"><img src="./assets/demo-silver.png" alt="生成的銀白色摺紙背景圖" loading="lazy" /><span>銀白</span></button>
+            </div>
+            <p class="gallery-note">原服務會依圖片色彩自動挑選；這組按鈕僅用來查看不同圖紙的視覺效果。</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="logic-title">
+        <span class="kicker">03 / Implementation</span>
+        <h2 id="logic-title">打造可維護的配圖服務</h2>
+        <p class="intro">實作重點是讓選圖能力能被前台穩定使用，也讓背景素材變更時有明確的更新方式。</p>
+        <div class="rules">
+          <article class="rule"><span class="label">SERVICE API</span><h3>清楚的服務分工</h3><p>由服務端處理圖片分析與背景挑選，讓前台專注於展示。</p></article>
+          <article class="rule"><span class="label">PERFORMANCE</span><h3>快速回應配圖請求</h3><p>預先處理背景圖資料並搭配快取機制，減少每次請求的重複運算，讓平均回應時間維持在 400 ms 以內。</p></article>
+          <article class="rule"><span class="label">OPERATIONS</span><h3>素材更新與追蹤</h3><p>建立背景素材更新與處理紀錄機制，方便維運。</p></article>
+        </div>
+      </section>
+
+      <section aria-labelledby="api-title">
+        <span class="kicker">04 / Service integration</span>
+        <h2 id="api-title">讓配圖能力融入前台流程</h2>
+        <p class="intro">服務負責圖片分析與背景挑選，前台則使用配圖結果完成展示。</p>
+        <div class="contract">
+          <div class="contract-card">
+            <h3>配圖服務</h3>
+            <p>將圖片色彩分析與背景挑選整合為獨立服務，供商品展示流程使用。</p>
+          </div>
+          <div class="contract-card">
+            <h3>素材維護</h3>
+            <p>背景素材變更時可更新服務使用的圖庫資料，並追蹤處理狀態。</p>
+            <p>本頁預覽使用 6 張新生成的示意圖。</p>
+          </div>
+        </div>
+        <div class="source-note"><strong>註：</strong> 所有頁面圖像均為新生成的作品集示意，未使用原系統圖檔；展示元件也非正式前台畫面。</div>
+      </section>
+      <footer>Engineering Portfolio · Auto Image Mapping</footer>
+    </main>
+    <script>
+      const showcase = document.querySelector("#showcase");
+      const selectedFile = document.querySelector("#selected-file");
+      const options = document.querySelectorAll(".option");
+      options.forEach((option) => {
+        option.addEventListener("click", () => {
+          const file = option.dataset.file;
+          showcase.style.backgroundImage = `url("./assets/${file}")`;
+          selectedFile.textContent = file;
+          options.forEach((item) => item.setAttribute("aria-pressed", String(item === option)));
+        });
+      });
+    </script>
+  </body>
+</html>

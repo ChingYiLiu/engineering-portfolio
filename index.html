@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Engineering portfolio and interactive prototypes." />
+    <title>Engineering Portfolio</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #071125;
+        --panel: #101e3d;
+        --line: #29416d;
+        --text: #e8f0ff;
+        --muted: #9bacca;
+        --accent: #5eead4;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 8% 0%, #19376c 0, transparent 28rem),
+          radial-gradient(circle at 92% 10%, #123b50 0, transparent 25rem),
+          var(--bg);
+        font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Noto Sans TC", sans-serif;
+      }
+
+      main {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 64px 0 80px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-size: 0.82rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(2.2rem, 7vw, 4.5rem);
+        line-height: 1.05;
+        letter-spacing: -0.055em;
+      }
+
+      .intro {
+        max-width: 650px;
+        margin: 20px 0 46px;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .intro p { margin: 0; }
+      .intro p + p { margin-top: 0.35rem; }
+
+      .section-title {
+        margin: 0 0 16px;
+        font-size: 0.88rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        display: block;
+        min-height: 245px;
+        padding: 24px;
+        color: inherit;
+        text-decoration: none;
+        background: linear-gradient(145deg, rgba(21, 43, 82, 0.94), rgba(11, 24, 51, 0.96));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 22px 55px rgba(0, 0, 0, 0.22);
+        transition: transform 180ms ease, border-color 180ms ease;
+      }
+
+      .card:hover,
+      .card:focus-visible {
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      .number {
+        display: inline-grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        margin-bottom: 42px;
+        color: #06211e;
+        background: var(--accent);
+        border-radius: 12px;
+        font-weight: 800;
+      }
+
+      .card h2 { margin: 0 0 8px; font-size: 1.35rem; }
+      .card p { margin: 0; color: var(--muted); }
+
+      .open {
+        display: inline-block;
+        margin-top: 18px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Engineering portfolio</p>
+      <h1>Project Experience & Architecture Demos</h1>
+      <div class="intro">
+        <p>以下收錄我主導或參與的精選專案，聚焦可操作原型與關鍵程式實作。</p>
+        <p>每個案例透過AI整理呈現從問題定義、系統設計，到工程取捨與驗證的思考過程。</p>
+      </div>
+
+      <h2 class="section-title">Prototypes</h2>
+      <div class="grid">
+        <a class="card" href="./aisearch/dist/">
+          <span class="number">01</span>
+          <h2>AI 商品搜尋</h2>
+          <p>查詢理解、多階段召回、符合商業規則的排序之電商平台搜尋功能。</p>
+          <span class="open">開啟 prototype →</span>
+        </a>
+        <a class="card" href="./ecommerce-prd-data/">
+          <span class="number">02</span>
+          <h2>電商搜尋資料產品</h2>
+          <p>從商品、行為、字典到向量資料，如何蒐集、治理並安全發佈為搜尋索引。</p>
+          <span class="open">查看架構案例 →</span>
+        </a>
+        <a class="card" href="./auto-image-mapping/">
+          <span class="number">03</span>
+          <h2>商品展示背景自動配對</h2>
+          <p>分析商品圖片色彩，自動選出適合前台指定展示區塊的背景圖紙。</p>
+          <span class="open">查看架構案例 →</span>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>
